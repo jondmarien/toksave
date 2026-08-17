@@ -1,9 +1,9 @@
 # TokSave installer for Windows (PowerShell)
-# Usage: irm https://raw.githubusercontent.com/agungprasastia/toksave/main/scripts/install.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/jondmarien/toksave/main/scripts/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
-$repo = "agungprasastia/toksave"
+$repo = "jondmarien/toksave"
 $target = "windows-x64"
 $asset = "toksave-${target}.zip"
 $installDir = "$env:LOCALAPPDATA\Programs\toksave"

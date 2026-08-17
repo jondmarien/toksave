@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # TokSave installer for macOS and Linux
-# Usage: curl -fsSL https://raw.githubusercontent.com/agungprasastia/toksave/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/jondmarien/toksave/main/scripts/install.sh | bash
 
-REPO="agungprasastia/toksave"
+REPO="jondmarien/toksave"
 INSTALL_DIR="${TOKSAVE_INSTALL_DIR:-$HOME/.local/bin}"
 
 # Detect platform

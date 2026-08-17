@@ -6,11 +6,11 @@
   <p><strong>Zero-config toolchain for token-efficient AI coding agents.</strong></p>
 
   <p>
-    <a href="https://github.com/agungprasastia/toksave/releases"><img src="https://img.shields.io/github/v/release/agungprasastia/toksave?label=version&style=flat-square" alt="version" /></a>
+    <a href="https://github.com/jondmarien/toksave/releases"><img src="https://img.shields.io/github/v/release/jondmarien/toksave?label=version&style=flat-square" alt="version" /></a>
     <a href="#"><img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue?style=flat-square" alt="platform" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="license" /></a>
-    <a href="https://github.com/agungprasastia/toksave/actions/workflows/ci.yml"><img src="https://github.com/agungprasastia/toksave/actions/workflows/ci.yml/badge.svg" alt="ci" /></a>
-    <a href="https://github.com/agungprasastia/toksave/actions/workflows/release.yml"><img src="https://github.com/agungprasastia/toksave/actions/workflows/release.yml/badge.svg" alt="release" /></a>
+    <a href="https://github.com/jondmarien/toksave/actions/workflows/ci.yml"><img src="https://github.com/jondmarien/toksave/actions/workflows/ci.yml/badge.svg" alt="ci" /></a>
+    <a href="https://github.com/jondmarien/toksave/actions/workflows/release.yml"><img src="https://github.com/jondmarien/toksave/actions/workflows/release.yml/badge.svg" alt="release" /></a>
   </p>
 
   <p>
@@ -118,12 +118,12 @@ toksave --agents claude,opencode,antigravity # or any combination
 
 **macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/agungprasastia/toksave/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jondmarien/toksave/main/scripts/install.sh | bash
 ```
 
 **Windows:**
 ```powershell
-irm https://raw.githubusercontent.com/agungprasastia/toksave/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/jondmarien/toksave/main/scripts/install.ps1 | iex
 ```
 
 ### Quick start
@@ -176,7 +176,7 @@ For in-depth guides, architecture specifications, and troubleshooting:
 Built with Rust.
 
 ```bash
-git clone https://github.com/agungprasastia/toksave.git
+git clone https://github.com/jondmarien/toksave.git
 cd toksave
 
 cargo run -- --help        # Run CLI in dev mode

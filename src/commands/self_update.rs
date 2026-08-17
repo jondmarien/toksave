@@ -7,7 +7,7 @@ use crate::util::exec::{run as exec_run, run_ok};
 use crate::util::version::toksave_version;
 use colored::Colorize;
 
-const OWNER: &str = "agungprasastia";
+const OWNER: &str = "jondmarien";
 const REPO: &str = "toksave";
 
 fn up_to_date(local: &str, latest: &str) -> bool {
