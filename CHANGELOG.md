@@ -5,6 +5,13 @@ All notable changes to TokSave will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-08-17
+
+### Fixed
+
+- **Antigravity CLI: dead `~/.antigravity` fallback directory**: with Gemini CLI being discontinued in favor of Antigravity CLI, toksave fell back to `~/.antigravity` whenever `~/.gemini` didn't exist yet (e.g. a machine with `agy` installed but never launched once). Antigravity CLI never creates or reads `~/.antigravity` at all — confirmed by Google's own Gemini CLI migration guide and by two separate `antigravity-cli` CHANGELOG bug-fix entries, both pointing at the shared `~/.gemini/config/` directory. `antigravity_paths()` now always targets `~/.gemini`, so hooks and instruction files wired before the CLI's first launch actually land where Antigravity reads from.
+- **Antigravity CLI: wrong MCP config filename**: toksave wrote CodeGraph/Context-Mode MCP servers to `~/.gemini/mcp.json` and `~/.gemini/config/mcp.json`; Antigravity CLI's real, documented file is `~/.gemini/config/mcp_config.json` (per `antigravity.google/docs/cli/gcli-migration`). Fixed the filename.
+
 ## [1.1.1] - 2026-08-17
 
 ### Added
