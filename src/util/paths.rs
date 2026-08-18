@@ -445,12 +445,11 @@ pub struct CursorPaths {
 }
 
 pub fn cursor_paths() -> CursorPaths {
+    // Cursor's documented user config is ~/.cursor (hooks.json, mcp.json,
+    // cli-config.json). It does not read $XDG_CONFIG_HOME/cursor — wiring that
+    // path leaves a competing file official RTK already wrote under ~/.cursor.
     let dir = if let Some(d) = env::var_os("CURSOR_CONFIG_DIR") {
         PathBuf::from(d)
-    } else if !cfg!(windows)
-        && let Some(xdg) = env::var_os("XDG_CONFIG_HOME")
-    {
-        PathBuf::from(xdg).join("cursor")
     } else {
         home().join(".cursor")
     };
@@ -536,12 +535,17 @@ pub fn write_file(p: &Path, content: &str) -> Result<()> {
     Ok(())
 }
 
+/// Absolute toksave path for MCP `command` fields (CreateProcess argv).
+///
+/// On Windows this uses forward slashes. Win32 `CreateProcess` accepts them,
+/// and they are also valid in Git Bash. Do **not** use this as the first token
+/// of a shell command string — Windows PowerShell 5.1 parses `C:/...` as the
+/// `C:` drive alias plus a `/...` switch. Hook strings use
+/// [`toksave_hook_command`].
 pub fn toksave_abs() -> String {
     std::env::current_exe()
         .map(|p| {
             let s = p.to_string_lossy().to_string();
-            // Forward slashes work in cmd.exe, PowerShell, and Git Bash;
-            // backslashes break Git Bash hooks (see #24).
             if cfg!(windows) {
                 s.replace('\\', "/")
             } else {
@@ -549,6 +553,19 @@ pub fn toksave_abs() -> String {
             }
         })
         .unwrap_or_else(|_| "toksave".to_string())
+}
+
+/// Absolute toksave path as a cmd.exe / Windows PowerShell 5.1 / pwsh 7 token.
+pub fn toksave_shell_abs() -> String {
+    std::env::current_exe()
+        .map(|p| crate::util::winsh::shell_exe_token(&p))
+        .unwrap_or_else(|_| "toksave".to_string())
+}
+
+/// Hook `command` string that runs in cmd, Windows PowerShell 5.1, and pwsh 7.
+/// `rest` is the toksave subcommand, e.g. `rtk-hook claude`.
+pub fn toksave_hook_command(rest: &str) -> String {
+    format!("{} {rest}", toksave_shell_abs())
 }
 
 #[cfg(test)]

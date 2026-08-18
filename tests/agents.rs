@@ -102,6 +102,22 @@ fn test_cursor_detect_uses_config_dir_in_test_mode() {
 }
 
 #[test]
+fn test_cursor_paths_ignore_xdg_and_use_dot_cursor() {
+    // Cursor's documented user hooks file is ~/.cursor/hooks.json, not
+    // $XDG_CONFIG_HOME/cursor/hooks.json. Official RTK writes the former;
+    // wiring the XDG path leaves two competing files and the CLI never sees ours.
+    let _env = common::setup();
+    let xdg = _env.home().join(".config");
+    unsafe {
+        std::env::set_var("XDG_CONFIG_HOME", &xdg);
+    }
+    let p = cursor_paths();
+    assert_eq!(p.dir, _env.home().join(".cursor"));
+    assert_eq!(p.hooks_file, _env.home().join(".cursor").join("hooks.json"));
+    assert_ne!(p.dir, xdg.join("cursor"));
+}
+
+#[test]
 fn test_tool_parsing() {
     assert_eq!(parse_tool_id("rtk"), Some(ToolId::Rtk));
     assert_eq!(parse_tool_id("caveman"), Some(ToolId::Caveman));
@@ -415,6 +431,19 @@ async fn test_copilot_rtk_writes_native_hooks_file() {
         .await
         .unwrap();
     assert_eq!(verify_tool(AgentId::Copilot, ToolId::Rtk), Some(false));
+}
+
+#[test]
+fn copilot_empty_rtk_hook_file_is_not_wired() {
+    let _env = common::setup();
+    let p = copilot_paths();
+    std::fs::create_dir_all(&p.hooks_dir).unwrap();
+    write_file(&p.hooks_dir.join("toksave-rtk.json"), "{}").unwrap();
+    assert_eq!(
+        verify_tool(AgentId::Copilot, ToolId::Rtk),
+        Some(false),
+        "an empty toksave-rtk.json must not count as wired"
+    );
 }
 
 #[tokio::test]

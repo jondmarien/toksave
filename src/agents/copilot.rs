@@ -3,7 +3,9 @@ use crate::registry::{Detection, RunOpts, ToolId};
 use crate::util::detect::find_binary_in;
 use crate::util::errors::Result;
 use crate::util::json::{get_or_create_object, read_json_file, write_json_file, write_json_pruned};
-use crate::util::paths::{copilot_known_bin_dirs, copilot_paths, toksave_abs};
+use crate::util::paths::{
+    copilot_known_bin_dirs, copilot_paths, toksave_abs, toksave_hook_command,
+};
 use crate::util::unified_block::{has_owner, remove_owner, write_owner};
 
 pub struct CopilotAgent;
@@ -94,7 +96,7 @@ impl Agent for CopilotAgent {
                         "preToolUse": [{
                             "type": "command",
                             "matcher": "bash",
-                            "command": format!("{} rtk-hook copilot", toksave_abs()),
+                            "command": toksave_hook_command("rtk-hook copilot"),
                             "timeoutSec": 10
                         }]
                     }
@@ -161,22 +163,50 @@ impl Agent for CopilotAgent {
         let p = copilot_paths();
         let cfg = read_json_file(&p.mcp_config).ok().flatten();
         match tool {
-            ToolId::Codegraph => Some(
-                cfg.as_ref()
-                    .and_then(|c| c.get("mcpServers"))
-                    .and_then(|m| m.get("codegraph"))
-                    .is_some(),
-            ),
-            ToolId::ContextMode => Some(
-                cfg.as_ref()
-                    .and_then(|c| c.get("mcpServers"))
-                    .and_then(|m| m.get("context-mode"))
-                    .is_some(),
-            ),
+            ToolId::Codegraph => Some(cfg.as_ref().is_some_and(|c| {
+                crate::util::mcp::json_tool_healthy(
+                    c,
+                    "mcpServers",
+                    crate::registry::AgentId::Copilot,
+                    ToolId::Codegraph,
+                )
+            })),
+            ToolId::ContextMode => Some(cfg.as_ref().is_some_and(|c| {
+                crate::util::mcp::json_tool_healthy(
+                    c,
+                    "mcpServers",
+                    crate::registry::AgentId::Copilot,
+                    ToolId::ContextMode,
+                )
+            })),
             ToolId::Caveman => Some(has_owner("copilot", "caveman")),
-            ToolId::Rtk => Some(p.hooks_dir.join("toksave-rtk.json").exists()),
+            ToolId::Rtk => Some(has_rtk_hook()),
             ToolId::Ponytail => Some(has_owner("copilot", "ponytail")),
             ToolId::Principles => Some(has_owner("copilot", "principles")),
         }
     }
+}
+
+fn has_rtk_hook() -> bool {
+    let p = copilot_paths();
+    let Some(cfg) = read_json_file(&p.hooks_dir.join("toksave-rtk.json"))
+        .ok()
+        .flatten()
+    else {
+        return false;
+    };
+    if cfg.get("version") != Some(&serde_json::json!(1)) {
+        return false;
+    }
+    cfg.get("hooks")
+        .and_then(|h| h.get("preToolUse"))
+        .and_then(|v| v.as_array())
+        .is_some_and(|arr| {
+            arr.iter().any(|h| {
+                h.get("matcher").and_then(|m| m.as_str()) == Some("bash")
+                    && h.get("command")
+                        .and_then(|c| c.as_str())
+                        .is_some_and(|c| c.contains("rtk-hook copilot"))
+            })
+        })
 }
