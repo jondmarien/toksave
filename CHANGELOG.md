@@ -5,6 +5,14 @@ All notable changes to TokSave will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **MCP verify treated key-exists as success**: a leftover `/$bunfs/root/toksave` command, a dead binary, or wrong `runmcp` argv still counted as wired, so `doctor --fix` printed `all tools wired` and skipped rewrite. Verify now requires the live `toksave_abs()` plus the expected `runmcp` argv. `--fix` also rewires tools whose `probe_agent` reports `binary not found` / bunfs / PowerShell-hostile forward-slash hook paths, tries `tool_repair` before rewire for missing npm tools, and prints a Windows PATH hint (`%APPDATA%\npm`, `%LOCALAPPDATA%\Programs\toksave`) when CodeGraph/Context-Mode still cannot be installed.
+- **Official `rtk init --auto-patch` stacked a second Claude hook**: `rtk hook claude` next to `toksave rtk-hook claude` made both fire (`rtk rtk git status`). Verify is now false while the native sibling exists; wire/`doctor --fix` removes it. Doctor also notes that `rtk init --show` reports the Claude hook missing when only toksave's wrapper is present — keep `rtk init -g --no-patch`.
+- **Cursor CLI hooks went to `$XDG_CONFIG_HOME/cursor`**: Cursor reads `~/.cursor/hooks.json` (confirmed against Cursor's own hooks docs). Official RTK already writes that file; the XDG path left two competing configs. `cursor_paths()` now always uses `~/.cursor` unless `CURSOR_CONFIG_DIR` is set, and native `rtk hook cursor` siblings are stripped on wire.
+
 ## [1.1.2] - 2026-08-17
 
 ### Fixed
